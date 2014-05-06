@@ -1,11 +1,11 @@
-{ stdenv, fetchurl, xproto, libX11, libXext }:
+{ stdenv, fetchurl, xproto, libX11, libXext, pam }:
 stdenv.mkDerivation rec {
   name = "slock-1.1";
   src = fetchurl {
-    url = "http://dl.suckless.org/tools/${name}.tar.gz";
-    sha256 = "1r70s3npmp0nyrfdsxz8cw1i1z8n9phqdlw02wjphv341h3yajp0";
+    url = "https://github.com/jackdoe/slock/archive/master.tar.gz";
+    sha256 = "13s74j0kpnsvfxwp3fs6s0i8b09b4yh5a9lm9wxg4sh7zxpa5b6y";
   };
-  buildInputs = [ xproto libX11 libXext	];
+  buildInputs = [ xproto libX11 libXext pam ];
   installFlags = "DESTDIR=\${out} PREFIX=";
   meta = {
     homepage = http://tools.suckless.org/slock;
