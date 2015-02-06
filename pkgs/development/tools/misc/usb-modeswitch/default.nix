@@ -1,11 +1,12 @@
 { stdenv, fetchurl, pkgconfig, libusb1 }:
 
 stdenv.mkDerivation rec {
-  name = "usb-modeswitch-2.2.0";
+  name = "usb-modeswitch";
+  version = "2.2.1";
 
   src =fetchurl {
-    url = "http://www.draisberghof.de/usb_modeswitch/${name}.tar.bz2";
-    sha256 = "0flaj3mq0xhzk72kkpclwglf77kcw5rkwvkaimn5zvbiw4yi0li7";
+    url = "http://www.draisberghof.de/usb_modeswitch/${name}-${version}.tar.bz2";
+    sha256 = "1jqih1g0y78w03rchpw7fjvzwjfakak61qjp7hbr1m5nnsh2dn9p";
   };
 
   # make clean: we always build from source. It should be necessary on x86_64 only
