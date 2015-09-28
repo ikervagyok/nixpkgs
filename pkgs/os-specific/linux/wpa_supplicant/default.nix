@@ -4,13 +4,13 @@
 
 with stdenv.lib;
 stdenv.mkDerivation rec {
-  version = "2.5";
+  version = "2.3";
 
   name = "wpa_supplicant-${version}";
 
   src = fetchurl {
     url = "http://hostap.epitest.fi/releases/${name}.tar.gz";
-    sha256 = "05mkp5bx1c3z7h5biddsv0p49gkrq9ksany3anp4wdiv92p5prfc";
+    sha256 = "0skvkl6c10ls4s48b2wmf47h9j1y40nlzxnzn8hyaw2j0prmpapa";
   };
 
   # TODO: Patch epoll so that the dbus actually responds
@@ -100,3 +100,4 @@ stdenv.mkDerivation rec {
     platforms = platforms.linux;
   };
 }
+
