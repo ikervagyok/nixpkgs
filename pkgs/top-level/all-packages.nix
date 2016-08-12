@@ -1627,6 +1627,14 @@ in
     platformTools = androidenv.platformTools;
   };
 
+  flashtoolSRC = callPackage ../development/mobile/flashtoolSRC {
+    platformTools = androidenv.platformTools;
+  };
+
+  unyaffs = callPackage ../development/mobile/unyaffs { };
+
+  jna = callPackage ../development/mobile/jna { };
+
   flashrom = callPackage ../tools/misc/flashrom { };
 
   flpsed = callPackage ../applications/editors/flpsed { };
