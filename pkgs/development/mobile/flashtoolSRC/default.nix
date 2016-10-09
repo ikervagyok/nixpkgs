@@ -1,21 +1,20 @@
-{ stdenv, fetchFromGitHub, p7zip, jdk, libusb1, platformTools, gtk2, glib, libXtst, swt, makeWrapper, unyaffs, jna }:
+{ stdenv, fetchFromGitHub, jdk, libusb1, platformTools, gtk2, glib, libXtst, swt, makeWrapper, unyaffs, jna, ant }:
 
 assert stdenv.isLinux;
 
-# TODO:
-#
-#   The FlashTool and FlashToolConsole scripts are messy and should probably we
-#   replaced entirely. All these scripts do is try to guess the environment in
-#   which to run the Java binary (and they guess wrong on NixOS).
-#
-#   The FlashTool scripts run 'chmod' on the binaries installed in the Nix
-#   store. These commands fail, naturally, because the Nix story is (hopefully)
-#   mounted read-only. This doesn't matter, though, because the build
-#   instructions fix the executable bits already.
+let
+
+  CP = "$(find -iname \"*.jar\" | xargs | tr ' ' ':')";
+  SWT = "${swt}/jars/swt.jar";
+
+  ARCH = if stdenv.system == "i686-linux" then "32" else "64";
+
+  version = "0.9.22.3";
+
+in
 
 stdenv.mkDerivation rec {
-  name = "flashtool";
-  version = "0.9.22.3";
+  name = "flashtool-${version}";
 
   src = fetchFromGitHub {
     owner = "Androxyde";
@@ -24,7 +23,43 @@ stdenv.mkDerivation rec {
     sha256 = "115z1c1wqax2318azwvrykqa5zpf25ixw8hznzc1g6xb01p7yhkx";
   };
 
-  buildInputs = [ p7zip jdk swt makeWrapper unyaffs jna ];
+  buildInputs = [ jdk swt makeWrapper unyaffs jna ant ];
+
+  patchPhase = ''
+    sed -i '53,62d' ant/setup-linux.xml
+  '';
+
+  buildPhase = ''
+    mkdir bin
+    ant -buildfile ant/deploy-release.xml
+    ant -buildfile ant/setup-linux.xml binaries
+
+    rm ../Deploy/FlashTool/x10flasher_lib/{adb,fastboot}.linux.*
+    ln -s ${platformTools}/platform-tools/adb ../Deploy/FlashTool/x10flasher_lib/adb.linux.${ARCH}
+    ln -s ${platformTools}/platform-tools/fastboot ../Deploy/FlashTool/x10flasher_lib/fastboot.linux.${ARCH}
+    ln -s ${libusb1.out}/lib/libusb-1.0.so.0 ../Deploy/FlashTool/x10flasher_lib/linux/lib${ARCH}/libusbx-1.0.so
+  '';
+
+  installPhase = ''
+    rm ../Deploy/FlashTool/FlashTool
+    cp -r ../Deploy/FlashTool $out/
+
+    cd $out
+    makeWrapper ${jdk}/bin/java $out/FlashTool \
+      --set JAVA_HOME "${jdk}" \
+      --set LD_LIBRARY_PATH "${libXtst}/lib:${glib}/lib:${gtk2}/lib:${libusb1}/lib:${swt}/lib:$out/x10flasher_lib/linux/lib${ARCH}:\$LD_LIBRARY_PATH" \
+      --add-flags "-classpath $out/x10flasher.jar:${CP}:${SWT} -Xms128m -Xmx512m -Duser.country=US -Duser.language=en -Djsse.enableSNIExtension=false gui.Main"
+    sed -i 's|Main.*$|Main|' $out/FlashTool
+    sed -i "s|./x10flasher_lib|$out/x10flasher_lib|g" $out/FlashTool
+  '';
+
+# preFixup = ''
+#   chmod -x "$out/custom"
+# '';
+
+# postFixup = ''
+#   chmod +x "$out/custom"
+# '';
 
   meta = {
     homepage = "http://www.flashtool.net/";

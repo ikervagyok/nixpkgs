@@ -1,33 +1,31 @@
-{ stdenv, fetchFromGitHub, jdk, ant, autoconf, automake, libtool }:
+{stdenv, fetchurl, jre, makeWrapper }:
 
-stdenv.mkDerivation rec {
-  name = "jna";
+let
+  version = "4.2.2";
+  name = "jna-${version}";
 
-  src = fetchFromGitHub {
-    owner = "java-native-access";
-    repo = "jna";
-    rev = "4bcc6191c5467361b5c1f12fb5797354cc3aa897";
-    sha256 = "0s5pzgxxpl6xghmfnr4bbvv63m5fsylsyddp3n04br850m3x1n2m";
+in stdenv.mkDerivation {
+
+  name = "${name}";
+
+  jar = fetchurl {
+    url = "https://maven.java.net/content/repositories/releases/net/java/dev/jna/jna/${version}/${name}.jar";
+    sha256 = "1gmx27mxsfa6ncki31xlvmfylbcm5c2jrfirpxnnyvkcw1aayf0z";
   };
 
-  buildInputs = [ jdk ant autoconf automake libtool ];
+  buildInputs = [ makeWrapper ];
 
-  LD_LIBRARY_PATH = "${jdk}/include";
+  phases = "installPhase";
 
-  JAVA_HOME=jdk;
-  JAVA="${jdk}/bin/java";
-
-  buildPhase = ''
-    sed -r -i -e 's|(<available file=")\$\{java.home}(/include"/>)|\1${jdk}\2|' build.xml
-    sed -r -i -e 's|||' build.xml
-    ant
-'';
+  installPhase = ''
+    mkdir -p $out/share/java
+    ln -s $jar $out/share/java/jna.jar
+    makeWrapper ${jre}/bin/java $out/bin/jna --add-flags "-jar $out/share/java/jna.jar"
+  '';
 
   meta = {
-    homepage = "https://github.com/java-native-access/jna";
     description = "";
-    license = stdenv.lib.licenses.lgpl21;
-    platforms = stdenv.lib.platforms.linux;
+#   homepage = ;
+#   license = stdenv.lib.licenses.bsd3;
   };
-
 }
