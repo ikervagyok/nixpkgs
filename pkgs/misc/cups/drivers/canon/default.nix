@@ -7,22 +7,22 @@ let
   i686_glibc = callPackage_i686 ({glibc}: glibc) {};
 
   src_canon = fetchurl {
-    url = "http://files.canon-europe.com/files/soft45378/software/o147jen_linuxufrII_0290.zip";
-    sha256 = "1qpdmaaw42gm5fi21rp4lf05skffkq42ka5c8xkw8rckzb13sy9j";
+    url = "http://files.canon-europe.com/files/soft46710/Software/o151en_linux_UFRII_v310.zip";
+    sha256 = "1j659nm9v4jpk1ycaf074f4yvw23rns0338q3gzb7sppq5pkvy9k";
   };
 
 in
 
 
 stdenv.mkDerivation rec {
-  name = "canon-cups-ufr2-2.90";
+  name = "canon-cups-ufr2-3.10";
   src = src_canon;
 
   phases = [ "unpackPhase" "installPhase" ];
 
   postUnpack = ''
-    (cd $sourceRoot; tar -xzf Sources/cndrvcups-common-2.90-1.tar.gz)
-    (cd $sourceRoot; tar -xzf Sources/cndrvcups-lb-2.90-1.tar.gz)
+    (cd $sourceRoot; tar -xzf Sources/cndrvcups-common-3.40-1.tar.gz)
+    (cd $sourceRoot; tar -xzf Sources/cndrvcups-lb-3.10-1.tar.gz)
   '';
 
   nativeBuildInputs = [ makeWrapper unzip autoreconfHook libtool ];
@@ -33,18 +33,18 @@ stdenv.mkDerivation rec {
     ##
     ## cndrvcups-common buildPhase
     ##
-    ( cd cndrvcups-common-2.90/buftool
+    ( cd cndrvcups-common-3.40/buftool
       autoreconf -fi
       ./autogen.sh --prefix=$out --enable-progpath=$out/bin --libdir=$out/lib --disable-shared --enable-static
       make
     )
 
-    ( cd cndrvcups-common-2.90/backend
+    ( cd cndrvcups-common-3.40/backend
       ./autogen.sh --prefix=$out --libdir=$out/lib
       make
     )
 
-    ( cd cndrvcups-common-2.90/c3plmod_ipc
+    ( cd cndrvcups-common-3.40/c3plmod_ipc
       make
     )
 
@@ -52,19 +52,19 @@ stdenv.mkDerivation rec {
     ## cndrvcups-common installPhase
     ##
 
-    ( cd cndrvcups-common-2.90/buftool
+    ( cd cndrvcups-common-3.40/buftool
       make install
     )
 
-    ( cd cndrvcups-common-2.90/backend
+    ( cd cndrvcups-common-3.40/backend
       make install
     )
 
-    ( cd cndrvcups-common-2.90/c3plmod_ipc
+    ( cd cndrvcups-common-3.40/c3plmod_ipc
       make install DESTDIR=$out/lib
     )
 
-    ( cd cndrvcups-common-2.90/libs
+    ( cd cndrvcups-common-3.40/libs
       chmod 755 *
       mkdir -p $out/lib32
       mkdir -p $out/bin
@@ -78,7 +78,7 @@ stdenv.mkDerivation rec {
       cp c3pldrv $out/bin
     )
 
-    (cd cndrvcups-common-2.90/data
+    (cd cndrvcups-common-3.40/data
       chmod 644 *.ICC
       mkdir -p $out/share/caepcm
       cp *.ICC $out/share/caepcm
@@ -128,17 +128,18 @@ stdenv.mkDerivation rec {
     ## cndrvcups-lb buildPhase
     ##
 
-    ( cd cndrvcups-lb-2.90/ppd
+    ( cd cndrvcups-lb-3.10/ppd
       ./autogen.sh --prefix=$out
       make
     )
 
-    ( cd cndrvcups-lb-2.90/pstoufr2cpca
+    ( cd cndrvcups-lb-3.10/pstoufr2cpca
       CPPFLAGS="-I$out/include" LDFLAGS=" -L$out/lib" ./autogen.sh --prefix=$out --enable-progpath=$out/bin
       make
     )
 
-    ( cd cndrvcups-lb-2.90/cpca
+    ( cd cndrvcups-lb-3.10/cpca
+      autoreconf -fi || true    # TODO: Is it neccessary to run `autoreconf -fi` and ignore it's failure?
       CPPFLAGS="-I$out/include" LDFLAGS=" -L$out/lib" ./autogen.sh --prefix=$out --enable-progpath=$out/bin  --enable-static
       make
     )
@@ -147,19 +148,19 @@ stdenv.mkDerivation rec {
     ## cndrvcups-lb installPhase
     ##
 
-    ( cd cndrvcups-lb-2.90/ppd
+    ( cd cndrvcups-lb-3.10/ppd
       make install
     )
 
-    ( cd cndrvcups-lb-2.90/pstoufr2cpca
+    ( cd cndrvcups-lb-3.10/pstoufr2cpca
       make install
     )
 
-    ( cd cndrvcups-lb-2.90/cpca
+    ( cd cndrvcups-lb-3.10/cpca
       make install
     )
 
-    ( cd cndrvcups-lb-2.90/libs
+    ( cd cndrvcups-lb-3.10/libs
       chmod 755 *
       mkdir -p $out/lib32
       mkdir -p $out/bin
@@ -190,7 +191,7 @@ stdenv.mkDerivation rec {
       ln -sf libcnlbcm.so.1.0 libcnlbcm.so
     )
 
-    ( cd cndrvcups-lb-2.90
+    ( cd cndrvcups-lb-3.10
       chmod 644 data/CnLB*
       chmod 644 libs/cnpkbidi_info*
       chmod 644 libs/ThLB*
