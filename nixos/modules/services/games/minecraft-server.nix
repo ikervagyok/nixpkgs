@@ -14,7 +14,7 @@ in
         default = false;
         description = ''
           If enabled, start a Minecraft Server. The listening port for
-          the server is always <literal>25565</literal>. The server
+          the server by default is <literal>25565</literal>. The server
           data will be loaded from and saved to
           <literal>${cfg.dataDir}</literal>.
         '';
@@ -25,6 +25,16 @@ in
         default = "/var/lib/minecraft";
         description = ''
           Directory to store minecraft database and other state/data files.
+        '';
+      };
+
+      configFile = mkOption {
+        type = types.nullOr (types.either types.str types.path);
+        default = null;
+        description = ''
+          Verbatim content of <literal>server.properties</literal> or a path.
+          When set to <literal>null</literal>, use Minecraft's auto-generated
+          config.
         '';
       };
 
@@ -56,6 +66,22 @@ in
       description   = "Minecraft Server Service";
       wantedBy      = [ "multi-user.target" ];
       after         = [ "network.target" ];
+
+# TODO: Handle case, where configFile is a file
+# TODO: NixOS doesn't seem to support prepending dashes in prestart commands
+      preStart = mkIf (cfg.configFile != null) ''
+# Backup config if it exists
+# -${pkgs.coreutils}/bin/mv ${cfg.dataDir}/server.properties{,.bak}
+        cat > ${cfg.dataDir}/server.properties << EOF
+        ${cfg.configFile}
+        EOF
+      '';
+
+# TODO: NixOS doesn't seem to support prepending dashes in prestart commands
+# postStop = mkIf (cfg.configFile != null) ''
+# Restore original config if it exists
+#   -${pkgs.coreutils}/bin/mv ${cfg.dataDir}/server.properties{.bak,}
+# '';
 
       serviceConfig.Restart = "always";
       serviceConfig.User    = "minecraft";
