@@ -2,11 +2,12 @@
 
 stdenv.mkDerivation rec {
   name    = "minecraft-server-${version}";
-  version = "1.12.2";
+  version = "1.13.1";
+  nonce = "fe123682e9cb30031eae351764f653500b7396c9";
 
   src  = fetchurl {
-    url    = "https://s3.amazonaws.com/Minecraft.Download/versions/${version}/minecraft_server.${version}.jar";
-    sha256 = "0zhnac6yvkdgdaag0gb0fgrkgizbwrpf7s76yqdiknfswrs947zy";
+    url    = "https://launcher.mojang.com/v1/objects/${nonce}/server.jar";
+    sha256 = "1lak29b7dm0w1cmzjn9gyix6qkszwg8xgb20hci2ki2ifrz099if";
   };
 
   preferLocalBuild = true;
