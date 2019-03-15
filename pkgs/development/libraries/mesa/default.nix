@@ -67,7 +67,7 @@ let
 in
 
 let
-  version = "18.3.4";
+  version = "19.0.0";
   branch  = head (splitString "." version);
 in
 
@@ -81,7 +81,7 @@ let self = stdenv.mkDerivation {
       "ftp://ftp.freedesktop.org/pub/mesa/older-versions/${branch}.x/${version}/mesa-${version}.tar.xz"
       "https://mesa.freedesktop.org/archive/mesa-${version}.tar.xz"
     ];
-    sha256 = "01xv03ah4l5lcfx015n3fg1620dh4nbbv6gmhh6zhdsx6sj4sc9j";
+    sha256 = "1y1qgsjnvhcg6xm08jhlilm2xjsl8p0dmaj7dk1yacgc83xrsm2s";
   };
 
   prePatch = "patchShebangs .";
@@ -132,6 +132,7 @@ let self = stdenv.mkDerivation {
     (enableFeature stdenv.isLinux "omx-bellagio")
     (enableFeature stdenv.isLinux "va")
     "--disable-opencl"
+    "--enable-autotools"
   ];
 
   nativeBuildInputs = [
