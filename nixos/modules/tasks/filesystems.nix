@@ -21,7 +21,7 @@ let
                      # their assertions too
                      (attrValues config.fileSystems);
 
-  prioOption = prio: optionalString (prio != null) " pri=${toString prio}";
+  prioOption = prio: optional (prio != null) "pri=${toString prio}";
 
   specialFSTypes = [ "proc" "sysfs" "tmpfs" "ramfs" "devtmpfs" "devpts" ];
 
@@ -261,7 +261,7 @@ in
 
         # Swap devices.
         ${flip concatMapStrings config.swapDevices (sw:
-            "${sw.realDevice} none swap${prioOption sw.priority}\n"
+            "${sw.realDevice} none swap ${builtins.concatStringsSep "," (sw.options ++ prioOption sw.priority)}\n"
         )}
       '';
 

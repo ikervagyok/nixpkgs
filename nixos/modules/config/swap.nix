@@ -91,6 +91,13 @@ let
         '';
       };
 
+      options = mkOption {
+        default = [];
+        example = [ "discard" ];
+        description = "Options used to activate the swap device.";
+        type = types.listOf types.str;
+      };
+
       randomEncryption = mkOption {
         default = false;
         example = {
